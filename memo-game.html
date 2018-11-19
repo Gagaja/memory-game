@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Russo+One&amp;subset=cyrillic,latin-ext" rel="stylesheet">
+    <title>Memory game</title>
+    <style>
+        body {
+            padding: 70px 0;
+            background-image: url(photo/memory-game2.png);
+            background-position: center;
+            background-attachment: fixed;
+            background-size: cover;
+            background-repeat: no-repeat;
+            height: 800px;
+            font-family: 'Russo One', sans-serif,'Arial';
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 60px;
+            color: gold;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        p{
+            text-align: center;
+            font-size: 25px;
+            color: gold;
+            line-height: 1.8;
+            letter-spacing: 1px;
+            font-weight: 500;
+            
+             
+        }
+        p::after{
+            content: '😎';
+            margin-left: 20px;
+        }
+        
+
+        table {
+
+            border-collapse: collapse;
+            margin: 100px auto;
+        }
+
+        td {
+            border: 4px solid gold;
+            text-align: center;
+            width: 50px;
+            height: 50px;
+            color: black;
+            background: black;
+            user-select: none;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .showed {
+            color: whitesmoke;
+        }
+
+        .equal {
+            color: gold;
+            font-size: 25px;
+            background: #005000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Memory game</h1>
+    <p>When you click on the fields in the table, you discover the numbers. <br> You need to find two identical numbers.
+    <br> Let's play</p>
+    
+    <div id="table-section"></div>
+
+    <script>
+
+        /**
+     * Game status object.
+     *
+     * @type {Object}
+     */
+        var gameState = {
+            numberOfAttempts: 0,
+            timeStarted: null,
+            timeFinished: null
+        };
+
+        /**
+         *
+         *
+         * @param start
+         * @param end
+         * @param count
+         *
+         * @return {Array}
+         */
+        function randomNumbers(start, end, count) {
+            if (end - start < 0) {
+                throw 'Param "end" must be bigger than param "start"';
+            }
+            if ((end - start) < count - 1) {
+                throw 'You can\'t generate ' + count + ' different numbers between ' + start + ' and ' + end;
+            }
+            var returnArray = [],
+                randomNumber;
+            for (var i = 0; i < count; i++) {
+                randomNumber = Math.floor(Math.random() * (end + 1 - start)) + start;
+
+                if (returnArray.indexOf(randomNumber) === -1) {
+                    returnArray.push(randomNumber);
+                } else {
+                    --i;
+                }
+            }
+            return returnArray;
+        }
+
+        /**
+         *
+         * @param redovi
+         * @param kolone
+         */
+        function tabela(redovi, kolone) {
+            var brojevi = randomNumbers(1, 35, 35);
+            var brojevi2 = randomNumbers(1, 35, 35);
+            var brojac = 0;
+            var html = "<table border=1>";
+
+            for (var i = 0; i < redovi; i++) {
+                html += "<tr>";
+                for (var j = 0; j < kolone; j++) {
+                    html += `<td id="cell_${brojac}"> </td>`;
+                    brojac++;
+                }
+                html += "</tr>";
+            }
+
+            html += "</table>";
+            document.getElementById("table-section").innerHTML = html;
+            var j = 0;
+            for (var i = 0; i < 100; i += 2) {
+                document.getElementById("cell_" + i).innerHTML = brojevi[j];
+                document.getElementById("cell_" + (i + 1)).innerHTML = brojevi2[j];
+
+                document.getElementById('cell_' + i).addEventListener('click', klikNaDugme);
+                document.getElementById('cell_' + (i + 1)).addEventListener('click', klikNaDugme);
+
+                ++j;
+            }
+        }
+
+        tabela(6, 6);
+
+        /**
+         *
+         * @param e
+         */
+        function klikNaDugme(e) {
+            var element = e.target;
+
+            checkedShowedNumbers();
+            element.classList.add("showed");
+        }
+
+        /**
+         *
+         */
+        function checkedShowedNumbers() {
+            var showedElements = document.getElementsByClassName("showed");
+
+            if (showedElements.length === 2) {
+                if (showedElements[0].innerHTML === showedElements[1].innerHTML) {
+                    for (var i = showedElements.length; i > 0; i--) {
+                        var elem = showedElements[i - 1];
+
+                        elem.classList.remove('showed');
+                        elem.classList.add('equal');
+                    }
+                } else {
+                    for (var i = showedElements.length; i > 0; i--) {
+                        showedElements[i - 1].classList.remove('showed');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
